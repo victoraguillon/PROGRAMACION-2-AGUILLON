@@ -20,7 +20,7 @@
   <img src="https://img.shields.io/badge/Carrera-Ing._en_Computación-green?style=for-the-badge" alt="Carrera">
 </p>
 
-Mi nombre es **Víctor Aguillon**, y soy estudiante de **Ingeniería en Computación**. Me encuentro cursando el cuarto trimestre, me apasiona la programación y espero continuar desarrollando mis habilidades en dicho rubro. Este repositorio fungirá como mi bitácora personal en esta materia tan importante. 
+Mi nombre es **Víctor Aguillon**, y soy estudiante de **Ingeniería en Computación**. Me encuentro cursando el cuarto trimestre de Ing. en Computación, me apasiona la programación y espero continuar desarrollando mis habilidades en dicho rubro. Este repositorio fungirá como mi bitácora personal en esta materia tan importante. 
 
 **Puedes encontrarme en:**
 <p align="left">
@@ -36,7 +36,7 @@ Mi nombre es **Víctor Aguillon**, y soy estudiante de **Ingeniería en Computac
 Para mantener todo ordenado y accesible, el contenido está organizado de la siguiente manera:
 
 * `📁 Clases/`
-    * Aquí encontrarás el código fuente y los ejercicios realizados en cada una de las clases, organizados por fecha o tema. ¡Ideal para repasar antes de un examen! 📝
+    * Aquí encontrarás el código fuente y los ejercicios realizados en cada una de las clases, organizados por fecha o tema. 
     
 
 * `📁 Proyectos/`
@@ -44,8 +44,12 @@ Para mantener todo ordenado y accesible, el contenido está organizado de la sig
   
 
 * `📁 Recursos/`
-    * Una colección personal de enlaces, guías, diagramas, libros y cualquier otro material de apoyo que me haya sido útil. 📚
-    
+    * Una colección personal de enlaces, guías, diagramas, libros y cualquier otro material de apoyo que me haya sido útil.  📚
+ 
+--- 
+
+**Miserando Atque Eligendo ("Lo miró con misericordia y lo eligió") - Papa Francisco. ✝️**
 
 <p align="center">
   ¡Espero que este repositorio sea útil!
+</p>
