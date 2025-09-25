@@ -36,7 +36,7 @@ Mi nombre es **Víctor Aguillon**, y soy estudiante de **Ingeniería en Computac
 Para mantener todo ordenado y accesible, el contenido está organizado de la siguiente manera:
 
 * `📁 Clases/`
-    * Aquí encontrarás el código fuente y los ejercicios realizados en cada una de las clases, organizados por fecha o tema. ¡Ideal para repasar antes de un examen! 📝
+    * Aquí encontrarás el código fuente y los ejercicios realizados en cada una de las clases, organizados por fecha o tema. 
     
 
 * `📁 Proyectos/`
@@ -44,8 +44,11 @@ Para mantener todo ordenado y accesible, el contenido está organizado de la sig
   
 
 * `📁 Recursos/`
-    * Una colección personal de enlaces, guías, diagramas, libros y cualquier otro material de apoyo que me haya sido útil. ¡Un baúl de conocimiento! 📚
-    
+    * Una colección personal de enlaces, guías, diagramas, libros y cualquier otro material de apoyo que me haya sido útil.  📚
+ 
+--- 
+
+**Miserando Atque Eligendo ("Lo miró con misericordia y lo eligió") - Papa Francisco. ✝️**
 
 <p align="center">
   ¡Espero que este repositorio sea útil!
