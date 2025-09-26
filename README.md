@@ -1,6 +1,6 @@
 # 💻 Programación II - Repositorio Académico
 
-¡Bienvenido al repositorio oficial de la materia **Programación II**! 🚀 Este espacio está dedicado a documentar mi aprendizaje, almacenar el código de las clases, los proyectos realizados y cualquier recurso de utilidad durante el período académico.
+¡Bienvenido mi repositorio de la materia **Programación II**! 🚀 Este espacio está dedicado a documentar mi aprendizaje, almacenar el código de las clases, los proyectos realizados y cualquier recurso de utilidad durante el período académico.
 
 ---
 
