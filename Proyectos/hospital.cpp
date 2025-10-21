@@ -1,3 +1,9 @@
+// ================================================================
+// SISTEMA DE GESTIÓN HOSPITALARIA
+// TEMA: punteros, memoria dinámica, CRUDs, búsquedas y validaciones
+// Bibliotecas usadas: <iostream>, <cstring>, <ctime>, <iomanip>, <locale>
+// ================================================================
+
 #include <iostream>
 #include <cstring>
 #include <ctime>
@@ -6,84 +12,92 @@
 
 using namespace std;
 
-// ESTRUCTURA 1: Historial Médico
+// ----------------------------
+// CONSTANTES DE TAMAÑO 
+// ----------------------------
+const int TAM_NOMBRE = 50;
+const int TAM_APELLIDO = 50;
+const int TAM_CEDULA = 20;
+const int TAM_ESPECIALIDAD = 50;
+const int TAM_HORARIO = 50;
+const int TAM_TELEFONO = 15;
+const int TAM_EMAIL = 50;
+const int TAM_TIPO_SANGRE = 5;
+const int TAM_DIRECCION = 100;
+const int TAM_DIAGNOSTICO = 200;
+const int TAM_TRATAMIENTO = 200;
+const int TAM_MEDICAMENTOS = 150;
+const int TAM_OBSERVACIONES = 200;
+const int TAM_ESTADO = 20;
+const int TAM_FECHA = 11; // "YYYY-MM-DD" + '\0'
+const int TAM_HORA = 6;   // "HH:MM" + '\0'
+const int TAM_ALERGIAS = 500;
 
+// ESTRUCTURAS INICIALES
 struct HistorialMedico {
     int idConsulta;
-    char fecha[11];         // Formato fijo: "YYYY-MM-DD"
-    char hora[6];           // Formato fijo: "HH:MM"
-    char diagnostico[200];
-    char tratamiento[200];
-    char medicamentos[150];
+    char fecha[TAM_FECHA];
+    char hora[TAM_HORA];
+    char diagnostico[TAM_DIAGNOSTICO];
+    char tratamiento[TAM_TRATAMIENTO];
+    char medicamentos[TAM_MEDICAMENTOS];
     int idDoctor;
     float costo;
 };
 
-
-// ESTRUCTURA 2: Paciente
-
 struct Paciente {
     int id;
-    char nombre[50];
-    char apellido[50];
-    char cedula[20];        // Debe ser única en el sistema
+    char nombre[TAM_NOMBRE];
+    char apellido[TAM_APELLIDO];
+    char cedula[TAM_CEDULA];
     int edad;
-    char sexo;              // Solo 'M' o 'F'
-    char tipoSangre[5];     // Ejemplo: "O+", "AB-"
-    char telefono[15];
-    char direccion[100];
-    char email[50];
+    char sexo; // 'M' o 'F'
+    char tipoSangre[TAM_TIPO_SANGRE];
+    char telefono[TAM_TELEFONO];
+    char direccion[TAM_DIRECCION];
+    char email[TAM_EMAIL];
     HistorialMedico* historial;
     int cantidadConsultas;
     int capacidadHistorial;
-    int* citasAgendadas;
+    int* citasAgendadas; // IDs de citas
     int cantidadCitas;
     int capacidadCitas;
-    char alergias[500];     // Formato: "Alergia1, Alergia2, ..."
-    char observaciones[500];
+    char alergias[TAM_ALERGIAS];
+    char observaciones[TAM_ALERGIAS];
     bool activo;
 };
 
-
-// ESTRUCTURA 3: Doctor
-
 struct Doctor {
     int id;
-    char nombre[50];
-    char apellido[50];
-    char cedula[20];        // Debe ser única en el sistema
-    char especialidad[50];
-    int aniosExperiencia;   // Validar que sea >= 0
-    float costoConsulta;    // Validar que sea > 0
-    char horarioAtencion[50]; // Ejemplo: "Lun-Vie 8:00-16:00"
-    char telefono[15];
-    char email[50];
-
+    char nombre[TAM_NOMBRE];
+    char apellido[TAM_APELLIDO];
+    char cedula[TAM_CEDULA];
+    char especialidad[TAM_ESPECIALIDAD];
+    int aniosExperiencia;
+    float costoConsulta;
+    char horarioAtencion[TAM_HORARIO];
+    char telefono[TAM_TELEFONO];
+    char email[TAM_EMAIL];
     int* pacientesAsignados;
     int cantidadPacientes;
     int capacidadPacientes;
-
     int* citasAgendadas;
     int cantidadCitas;
     int capacidadCitas;
-
     bool disponible;
 };
-
-// ESTRUCTURA 1.5: Cita
 
 struct Cita {
     int id;
     int idPaciente;
     int idDoctor;
-    char fecha[11];         // Formato fijo: "YYYY-MM-DD"
-    char hora[6];           // Formato fijo: "HH:MM"
+    char fecha[TAM_FECHA];
+    char hora[TAM_HORA];
     char motivo[150];
-    char estado[20];        // Valores válidos: "Agendada", "Atendida", "Cancelada"
-    char observaciones[200];
-    bool atendida;          // true solo si la cita fue atendida
+    char estado[TAM_ESTADO]; // "Agendada", "Atendida", "Cancelada"
+    char observaciones[TAM_OBSERVACIONES];
+    bool atendida;
 };
-
 
 struct Hospital {
     char nombre[100];
@@ -102,137 +116,313 @@ struct Hospital {
     int cantidadCitas;
     int capacidadCitas;
 
-    // Los siguientes contadores permiten generar IDs únicos
-    int siguienteIdPaciente;   
-    int siguienteIdDoctor;     
-    int siguienteIdCita;       
-    int siguienteIdConsulta;   
+    int siguienteIdPaciente;
+    int siguienteIdDoctor;
+    int siguienteIdCita;
+    int siguienteIdConsulta;
 };
 
-Paciente* crearPaciente (Hospital* hospital, const char* nombre, const char* apellido, 
-const char* cedula, int edad, char sexo){
+
+// Helpers y validaciones básicas
 
 
-for (int i = 0; i < hospital->cantidadPacientes; i++) {
-    if (strcmp (hospital-> pacientes[i].cedula, cedula) == 0) {
+
+void toLowerCopy(const char* src, char* dst, int dstSize) {
+    int n = (int)strlen(src);
+    if (n >= dstSize) n = dstSize - 1;
+    for (int i = 0; i < n; i++) {
+        char c = src[i];
+        if (c >= 'A' && c <= 'Z') c = (char)(c + 32);
+        dst[i] = c;
+    }
+    dst[n] = '\0';
+}
+
+// Valida formato YYYY-MM-DD y rangos básicos 
+bool validarFecha(const char* fecha) {
+    if ((int)strlen(fecha) != 10) return false;
+    if (fecha[4] != '-' || fecha[7] != '-') return false;
+    int y = (fecha[0]-'0')*1000 + (fecha[1]-'0')*100 + (fecha[2]-'0')*10 + (fecha[3]-'0');
+    int m = (fecha[5]-'0')*10 + (fecha[6]-'0');
+    int d = (fecha[8]-'0')*10 + (fecha[9]-'0');
+    if (y < 1900 || y > 2100) return false;
+    if (m < 1 || m > 12) return false;
+    int maxd = 31;
+    if (m == 4 || m == 6 || m == 9 || m == 11) maxd = 30;
+    else if (m == 2) {
+        bool leap = (y % 4 == 0 && (y % 100 != 0 || y % 400 == 0));
+        maxd = leap ? 29 : 28;
+    }
+    if (d < 1 || d > maxd) return false;
+    return true;
+}
+
+
+bool validarHora(const char* hora) {
+    if ((int)strlen(hora) != 5) return false;
+    if (hora[2] != ':') return false;
+    int h = (hora[0]-'0')*10 + (hora[1]-'0');
+    int m = (hora[3]-'0')*10 + (hora[4]-'0');
+    if (h < 0 || h > 23) return false;
+    if (m < 0 || m > 59) return false;
+    return true;
+}
+
+int compararFechas(const char* f1, const char* f2) {
+    int c = strcmp(f1, f2);
+    if (c < 0) return -1;
+    if (c > 0) return 1;
+    return 0;
+}
+
+
+bool validarCedula(const char* cedula) {
+    int len = (int)strlen(cedula);
+    return len > 0 && len < TAM_CEDULA;
+}
+
+
+bool validarEmail(const char* email) {
+    bool tieneArroba = false, tienePunto = false;
+    int len = (int)strlen(email);
+    for (int i = 0; i < len; i++) {
+        if (email[i] == '@') tieneArroba = true;
+        if (email[i] == '.') tienePunto = true;
+    }
+    return tieneArroba && tienePunto;
+}
+
+//INICIALIZACIÓN HOSPITAL
+
+Hospital* inicializarHospital(const char* nombre, int capacidadInicialPacientes = 10,
+                              int capacidadInicialDoctores = 10,
+                              int capacidadInicialCitas = 20) {
+    Hospital* h = new Hospital;
+    strncpy(h->nombre, nombre, 100); h->nombre[99] = '\0';
+    strncpy(h->direccion, "Sin direccion", 150); h->direccion[149] = '\0';
+    strncpy(h->telefono, "000000000000000", 15); h->telefono[14] = '\0';
+
+    h->capacidadPacientes = capacidadInicialPacientes;
+    h->capacidadDoctores = capacidadInicialDoctores;
+    h->capacidadCitas = capacidadInicialCitas;
+
+    h->cantidadPacientes = 0;
+    h->cantidadDoctores = 0;
+    h->cantidadCitas = 0;
+
+    h->pacientes = new Paciente[h->capacidadPacientes];
+    h->doctores = new Doctor[h->capacidadDoctores];
+    h->citas = new Cita[h->capacidadCitas];
+
+    h->siguienteIdPaciente = 1;
+    h->siguienteIdDoctor = 1;
+    h->siguienteIdCita = 1;
+    h->siguienteIdConsulta = 1;
+
+    return h;
+}
+
+void redimensionarArrayPacientes(Hospital* h) {
+    int nuevaCap = h->capacidadPacientes * 2;
+    Paciente* nuevo = new Paciente[nuevaCap];
+    for (int i = 0; i < h->cantidadPacientes; i++) nuevo[i] = h->pacientes[i];
+    delete[] h->pacientes;
+    h->pacientes = nuevo;
+    h->capacidadPacientes = nuevaCap;
+}
+void redimensionarArrayDoctores(Hospital* h) {
+    int nuevaCap = h->capacidadDoctores * 2;
+    Doctor* nuevo = new Doctor[nuevaCap];
+    for (int i = 0; i < h->cantidadDoctores; i++) nuevo[i] = h->doctores[i];
+    delete[] h->doctores;
+    h->doctores = nuevo;
+    h->capacidadDoctores = nuevaCap;
+}
+void redimensionarArrayCitas(Hospital* h) {
+    int nuevaCap = h->capacidadCitas * 2;
+    Cita* nuevo = new Cita[nuevaCap];
+    for (int i = 0; i < h->cantidadCitas; i++) nuevo[i] = h->citas[i];
+    delete[] h->citas;
+    h->citas = nuevo;
+    h->capacidadCitas = nuevaCap;
+}
+
+void destruirHospital(Hospital* h) {
+    if (!h) return;
+
+    for (int i = 0; i < h->cantidadPacientes; i++) {
+        delete[] h->pacientes[i].historial;
+        delete[] h->pacientes[i].citasAgendadas;
+    }
+    delete[] h->pacientes;
+
+    for (int i = 0; i < h->cantidadDoctores; i++) {
+        delete[] h->doctores[i].pacientesAsignados;
+        delete[] h->doctores[i].citasAgendadas;
+    }
+    delete[] h->doctores;
+    delete[] h->citas;
+    delete h;
+}
+//MODULO DE PACIENTES
+
+Paciente* crearPaciente(Hospital* h, const char* nombre, const char* apellido,
+                        const char* cedula, int edad, char sexo) {
+    // Validaciones básicas de entrada antes de tocar memoria
+    if (!validarCedula(cedula)) {
+        cout << "Error: Cédula inválida." << endl;
         return nullptr;
     }
-}
-
-if (hospital->cantidadPacientes >= hospital->capacidadPacientes){
-    int nuevaCapacidad = hospital ->cantidadPacientes * 2;
-    Paciente* nuevoArray = new Paciente [nuevaCapacidad];
-    for (int i = 0; i < hospital ->cantidadPacientes; i++) {
-    nuevoArray [i] = hospital ->pacientes[i];
+    if (edad < 0 || edad > 120) {
+        cout << "Error: Edad fuera de rango (0-120)." << endl;
+        return nullptr;
     }
-    delete[] hospital->pacientes;
-    hospital->pacientes = nuevoArray;
-    hospital->capacidadPacientes = nuevaCapacidad;
-}
+    if (sexo != 'M' && sexo != 'F') {
+        cout << "Error: Sexo inválido. Use 'M' o 'F'." << endl;
+        return nullptr;
+    }
 
-Paciente& nuevo = hospital -> pacientes[hospital->cantidadPacientes];
-    nuevo.id = hospital->siguienteIdPaciente++;
-    strncpy (nuevo.nombre, nombre, 50);
-    strncpy (nuevo.apellido, apellido, 50);
-    strncpy (nuevo.cedula, cedula, 20);
-    nuevo.edad = edad;
-    nuevo.sexo = sexo;
-    nuevo.activo = true;
-    nuevo.historial = new HistorialMedico[5];
-    nuevo.cantidadConsultas = 0;
-    nuevo.capacidadHistorial = 5;
-    nuevo.citasAgendadas = new int[5];
-    nuevo.cantidadCitas = 0;
-    nuevo.capacidadCitas = 5;
-    nuevo.alergias[0] = '\0';
-    nuevo.observaciones[0] = '\0';
-    hospital->cantidadPacientes++;
-return &nuevo;
-}
-
-Paciente* buscarPacienteporCedula(Hospital* hospital, const char* cedula){
-    for (int i = 0; i < hospital->cantidadPacientes; i++) {
-        if  (strcmp(hospital->pacientes[i].cedula, cedula) == 0) {
-            return &hospital->pacientes[i];
+    // EN CASO DE CÉDULA DÚPLICADA
+    for (int i = 0; i < h->cantidadPacientes; i++) {
+        char a[TAM_CEDULA], b[TAM_CEDULA];
+        toLowerCopy(h->pacientes[i].cedula, a, TAM_CEDULA);
+        toLowerCopy(cedula, b, TAM_CEDULA);
+        if (strcmp(a, b) == 0) {
+            cout << "Error: Ya existe un paciente con cédula " << cedula << endl;
+            return nullptr;
         }
     }
-return nullptr;
-}
-
-Paciente* buscarPacienteporId(Hospital* hospital, int id){
-    for (int i = 0; i < hospital->cantidadPacientes; i++) {
-        if  (hospital->pacientes[i].id == id) {
-            return &hospital->pacientes[i];
-        }
+    if (h->cantidadPacientes >= h->capacidadPacientes) {
+        redimensionarArrayPacientes(h);
     }
-return nullptr;
+
+    //CREACIÓN Y ASIGNACIÓN DE PACIENTE.
+
+    Paciente& p = h->pacientes[h->cantidadPacientes];
+    p.id = h->siguienteIdPaciente++;
+    strncpy(p.nombre, nombre, TAM_NOMBRE - 1); p.nombre[TAM_NOMBRE - 1] = '\0';
+    strncpy(p.apellido, apellido, TAM_APELLIDO - 1); p.apellido[TAM_APELLIDO - 1] = '\0';
+    strncpy(p.cedula, cedula, TAM_CEDULA - 1); p.cedula[TAM_CEDULA - 1] = '\0';
+    p.edad = edad;
+    p.sexo = sexo;
+    p.tipoSangre[0] = '\0';
+    p.telefono[0] = '\0';
+    p.direccion[0] = '\0';
+    p.email[0] = '\0';
+    p.activo = true;
+
+    p.capacidadHistorial = 5;
+    p.cantidadConsultas = 0;
+    p.historial = new HistorialMedico[p.capacidadHistorial];
+    p.capacidadCitas = 5;
+    p.cantidadCitas = 0;
+    p.citasAgendadas = new int[p.capacidadCitas];
+
+    p.alergias[0] = '\0';
+    p.observaciones[0] = '\0';
+
+    h->cantidadPacientes++;
+    cout << "Paciente creado con ID " << p.id << endl;
+    return &p;
 }
 
+Paciente* buscarPacientePorCedula(Hospital* h, const char* cedula) {
+    char objetivo[TAM_CEDULA]; toLowerCopy(cedula, objetivo, TAM_CEDULA);
+    for (int i = 0; i < h->cantidadPacientes; i++) {
+        char comp[TAM_CEDULA]; toLowerCopy(h->pacientes[i].cedula, comp, TAM_CEDULA);
+        if (strcmp(comp, objetivo) == 0) return &h->pacientes[i];
+    }
+    return nullptr;
+}
 
-Paciente** buscarPacientesPorNombre(Hospital* hospital, const char* nombre, int* cantidad) {
+Paciente* buscarPacientePorId(Hospital* h, int id) {
+    for (int i = 0; i < h->cantidadPacientes; i++) {
+        if (h->pacientes[i].id == id) return &h->pacientes[i];
+    }
+    return nullptr;
+}
+
+Paciente** buscarPacientesPorNombre(Hospital* h, const char* nombre, int* cantidad) {
+    char objetivo[TAM_NOMBRE]; toLowerCopy(nombre, objetivo, TAM_NOMBRE);
     int contador = 0;
-    for (int i = 0; i < hospital->cantidadPacientes; i++) {
-        if (strstr(hospital->pacientes[i].nombre, nombre)) {
-            contador++;
-        }
+    for (int i = 0; i < h->cantidadPacientes; i++) {
+        char comp[TAM_NOMBRE]; toLowerCopy(h->pacientes[i].nombre, comp, TAM_NOMBRE);
+        if (strstr(comp, objetivo)) contador++;
     }
-
-    if (contador == 0) {
-        *cantidad = 0;
-        return nullptr;
-    }
+    if (contador == 0) { *cantidad = 0; return nullptr; }
 
     Paciente** resultados = new Paciente*[contador];
-    int index = 0;
-    for (int i = 0; i < hospital->cantidadPacientes; i++) {
-        if (strstr(hospital->pacientes[i].nombre, nombre)) {
-            resultados[index++] = &hospital->pacientes[i];
-        }
+    int idx = 0;
+    for (int i = 0; i < h->cantidadPacientes; i++) {
+        char comp[TAM_NOMBRE]; toLowerCopy(h->pacientes[i].nombre, comp, TAM_NOMBRE);
+        if (strstr(comp, objetivo)) resultados[idx++] = &h->pacientes[i];
     }
-
     *cantidad = contador;
     return resultados;
 }
 
-bool actualizarPaciente(Hospital* hospital, int id) {
-    Paciente* paciente = buscarPacienteporId(hospital, id);
-    if (!paciente) return false;
+// ACTUALIZACIÓN DE DATOS
+bool actualizarPaciente(Hospital* h, int id) {
+    Paciente* p = buscarPacientePorId(h, id);
+    if (!p) { cout << "Error: Paciente no encontrado." << endl; return false; }
 
+    cout << "Actualizando paciente ID " << p->id << endl;
 
+    cout << "Nuevo teléfono (max 14 chars): ";
+    cin.ignore();
+    cin.getline(p->telefono, TAM_TELEFONO);
+
+    cout << "Nueva dirección (max 99 chars): ";
+    cin.getline(p->direccion, TAM_DIRECCION);
+
+    cout << "Nuevo email (max 49 chars): ";
+    cin.getline(p->email, TAM_EMAIL);
+    if (!validarEmail(p->email)) {
+        cout << "Advertencia: Email posiblemente inválido." << endl;
+    }
+
+    cout << "Nueva edad: ";
+    int nuevaEdad = p->edad;
+    cin >> nuevaEdad;
+    if (cin.fail() || nuevaEdad < 0 || nuevaEdad > 120) {
+        cin.clear(); cin.ignore(10000, '\n');
+        cout << "Error: Edad inválida. No se actualiza." << endl;
+        return false;
+    }
+    p->edad = nuevaEdad;
+
+    cout << "Actualización completada." << endl;
     return true;
 }
 
-bool eliminarPaciente(Hospital* hospital, int id) {
+// ELIMINACIÓN DE PACIENTE.
+bool eliminarPaciente(Hospital* h, int id) {
     int indice = -1;
-    for (int i = 0; i < hospital->cantidadPacientes; i++) {
-        if (hospital->pacientes[i].id == id) {
-            indice = i;
-            break;
-        }
+    for (int i = 0; i < h->cantidadPacientes; i++) {
+        if (h->pacientes[i].id == id) { indice = i; break; }
     }
-if (indice == -1) return false;
+    if (indice == -1) { cout << "Error: Paciente no encontrado." << endl; return false; }
 
-    Paciente& paciente = hospital->pacientes[indice];
-    delete[] paciente.historial;
-    delete[] paciente.citasAgendadas;
+    delete[] h->pacientes[indice].historial;
+    delete[] h->pacientes[indice].citasAgendadas;
 
-    for (int i = indice; i < hospital->cantidadPacientes - 1; i++) {
-        hospital->pacientes[i] = hospital->pacientes[i + 1];
+    for (int i = indice; i < h->cantidadPacientes - 1; i++) {
+        h->pacientes[i] = h->pacientes[i + 1];
     }
-
-    hospital->cantidadPacientes--;
+    h->cantidadPacientes--;
+    cout << "Paciente eliminado." << endl;
     return true;
 }
-void listarPacientes(Hospital* hospital) {
+
+// Listado de pacientes en tabla ASCII
+void listarPacientes(Hospital* h) {
     cout << "+-----+------------------------------+--------------+------+-----------+" << endl;
     cout << "| ID  | Nombre completo              | Cedula       | Edad | Consultas |" << endl;
     cout << "+-----+------------------------------+--------------+------+-----------+" << endl;
-
-    for (int i = 0; i < hospital->cantidadPacientes; i++) {
-        Paciente& p = hospital->pacientes[i];
-        char nombreCompleto[51];
-        snprintf(nombreCompleto, 51, "%s %s", p.nombre, p.apellido);
-
+    for (int i = 0; i < h->cantidadPacientes; i++) {
+        Paciente& p = h->pacientes[i];
+        char nombreCompleto[2*TAM_NOMBRE];
+        snprintf(nombreCompleto, sizeof(nombreCompleto), "%s %s", p.nombre, p.apellido);
         cout << "| " << setw(3) << right << p.id << " | "
              << setw(28) << left << nombreCompleto << " | "
              << setw(12) << left << p.cedula << " | "
@@ -243,121 +433,3 @@ void listarPacientes(Hospital* hospital) {
 }
 
 
-// AGREGAR CONSULTA AL HISTORIAL
-void agregarConsultaAlHistorial(Paciente* paciente, HistorialMedico nuevaConsulta) {
-    // Verificar si el array está lleno
-    if (paciente->cantidadConsultas >= paciente->capacidadHistorial) {
-        int nuevaCapacidad = paciente->capacidadHistorial * 2;
-        HistorialMedico* nuevoHistorial = new HistorialMedico[nuevaCapacidad];
-
-        // Copiar datos existentes al nuevo array
-        for (int i = 0; i < paciente->cantidadConsultas; i++) {
-            nuevoHistorial[i] = paciente->historial[i];
-        }
-
-        // Liberar memoria antigua y actualizar puntero
-        delete[] paciente->historial;
-        paciente->historial = nuevoHistorial;
-        paciente->capacidadHistorial = nuevaCapacidad;
-    }
-
-    // Agregar nueva consulta
-    paciente->historial[paciente->cantidadConsultas] = nuevaConsulta;
-    paciente->cantidadConsultas++;
-}
-// PARA OBTENER EL HISTORIAL COMPLETO
-HistorialMedico* obtenerHistorialCompleto(Paciente* paciente, int* cantidad) {
-    *cantidad = paciente->cantidadConsultas;
-    return paciente->historial;
-}
-
-void mostrarHistorialMedico(Paciente* paciente) {
-    cout << "+-----+------------+-------+---------------------------+------------+--------+" << endl;
-    cout << "| ID  |   Fecha    | Hora  | Diagnostico               | ID Doctor  | Costo  |" << endl;
-    cout << "+-----+------------+-------+---------------------------+------------+--------+" << endl;
-
-    for (int i = 0; i < paciente->cantidadConsultas; i++) {
-        HistorialMedico& consulta = paciente->historial[i];
-        cout << "| " << setw(3) << consulta.idConsulta << " | "
-             << setw(10) << consulta.fecha << " | "
-             << setw(5) << consulta.hora << " | "
-             << setw(25) << consulta.diagnostico << " | "
-             << setw(10) << consulta.idDoctor << " | "
-             << setw(6) << fixed << setprecision(2) << consulta.costo << " |" << endl;
-    }
-
-    cout << "+-----+------------+-------+---------------------------+------------+--------+" << endl;
-}
-
-
-int main() {
-
-    setlocale(LC_ALL, "spanish");
-
-    // Inicializar hospital con capacidad inicial de 10 pacientes
-    Hospital hospital;
-    strncpy(hospital.nombre, "Hospital Central", 100);
-    strncpy(hospital.direccion, "Av. Principal, Maracaibo", 150);
-    strncpy(hospital.telefono, "0261-1234567", 15);
-
-    hospital.capacidadPacientes = 10;
-    hospital.pacientes = new Paciente[hospital.capacidadPacientes];
-    hospital.cantidadPacientes = 0;
-
-    hospital.capacidadDoctores = 10;
-    hospital.doctores = new Doctor[hospital.capacidadDoctores];
-    hospital.cantidadDoctores = 0;
-
-    hospital.capacidadCitas = 20;
-    hospital.citas = new Cita[hospital.capacidadCitas];
-    hospital.cantidadCitas = 0;
-
-    hospital.siguienteIdPaciente = 1;
-    hospital.siguienteIdDoctor = 1;
-    hospital.siguienteIdCita = 1;
-    hospital.siguienteIdConsulta = 1;
-
-    // Crear paciente
-    Paciente* p1 = crearPaciente(&hospital, "Juan", "Perez", "V-12345678", 35, 'M');
-    if (p1) {
-        cout << "Paciente creado: " << p1->nombre << " " << p1->apellido << endl;
-    }
-
-    // Buscar paciente por cédula
-    Paciente* encontrado = buscarPacienteporCedula(&hospital, "V-12345678");
-    if (encontrado) {
-        cout << "Paciente encontrado: " << encontrado->nombre << " " << encontrado->apellido << endl;
-    }
-
-    // Agregar consulta al historial
-    HistorialMedico consulta;
-    consulta.idConsulta = hospital.siguienteIdConsulta++;
-    strncpy(consulta.fecha, "2025-10-14", 11);
-    strncpy(consulta.hora, "09:30", 6);
-    strncpy(consulta.diagnostico, "Gripe comun", 200);
-    strncpy(consulta.tratamiento, "Reposo y liquidos", 200);
-    strncpy(consulta.medicamentos, "Paracetamol", 150);
-    consulta.idDoctor = 1;
-    consulta.costo = 15.0;
-
-    agregarConsultaAlHistorial(p1, consulta);
-
-    // Mostrar historial médico
-    mostrarHistorialMedico(p1);
-
-    // Listar todos los pacientes
-    listarPacientes(&hospital);
-
-    // Liberar memoria al final
-    for (int i = 0; i < hospital.cantidadPacientes; i++) {
-        delete[] hospital.pacientes[i].historial;
-        delete[] hospital.pacientes[i].citasAgendadas;
-    }
-    delete[] hospital.pacientes;
-    delete[] hospital.doctores;
-    delete[] hospital.citas;
-
-    return 0;
-}
-
-   
