@@ -1,6 +1,5 @@
 #ifndef PACIENTE_HPP
 #define PACIENTE_HPP
-
 #include <ctime>
 
 class Paciente {
@@ -40,8 +39,6 @@ public:
     const char* getApellido() const;
     const char* getCedula() const;
     bool isEliminado() const;
-    
-    
     bool agregarCita(int citaID);
     void setPrimerConsulta(int consultaID);
     int getPrimerConsulta() const;
@@ -49,11 +46,7 @@ public:
     void incrementarConsultas();
     int getCantidadCitas() const;
     int getCitaID(int index) const;
-
-  
     bool validarDatos() const;
-    
-
     void mostrarFila() const;
     void mostrarDetalle() const;
 };

@@ -5,6 +5,8 @@
 #include <iostream>
 #include "Constantes.hpp"
 
+using namespace std;
+
 
 class GestorArchivos {
 public:
@@ -19,7 +21,7 @@ public:
     static ArchivoHeader leerHeader(const char* archivo);
     static bool leerRegistroPorPosicion(int indice, void* registro, size_t tamano, const char* archivo);
     static bool actualizarHeader(const char* nombreArchivo, const ArchivoHeader& header);
-    static std::streamoff calcularPosicion(int indice, size_t tamanoRegistro);
+    static streamoff calcularPosicion(int indice, size_t tamanoRegistro);
 
 private:
     static bool inicializarArchivo(const char* archivo);

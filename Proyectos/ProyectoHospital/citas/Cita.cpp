@@ -40,9 +40,8 @@ void Cita::mostrarFila() const {
 }
 
 void Cita::mostrarDetalle() const {
-    std::cout << "ID: " << id << std::endl;
-    std::cout << "Paciente ID: " << idPaciente << std::endl;
-    std::cout << "Doctor ID: " << idDoctor << std::endl;
-    std::cout << "Fecha: " << fecha << "\nHora: " << hora << std::endl;
-    std::cout << "Estado: " << estado << std::endl;
+    cout << "ID: " << id << endl;
+    cout << "Paciente ID: " << idPaciente << endl;
+    cout << "Fecha: " << fecha << "\nHora: " << hora << endl;
+    cout << "Estado: " << estado << endl;
 }

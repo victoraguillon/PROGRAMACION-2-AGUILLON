@@ -10,5 +10,7 @@ void buscarPacientePorID();
 void eliminarPaciente(Hospital& h);
 void modificarPaciente();
 
+// Menú de pacientes (interfaz)
+void menuPacientes(Hospital& h);
 
 #endif

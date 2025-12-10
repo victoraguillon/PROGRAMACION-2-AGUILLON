@@ -7,7 +7,6 @@ private:
     char direccion[150];
     char telefono[15];
     char email[50];
-
     int totalPacientes;
     int totalDoctores;
     int totalCitas;
@@ -22,7 +21,6 @@ public:
     const char* getDireccion() const;
     const char* getTelefono() const;
     const char* getEmail() const;
-    
 
     void incrementarPacientes();
     void decrementarPacientes();

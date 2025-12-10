@@ -142,3 +142,34 @@ void modificarDoctor() {
     }
     Formatos::pausar();
 }
+
+void menuDoctores(Hospital& h) {
+    int op;
+    do {
+        Formatos::imprimirEncabezado("GESTION DE DOCTORES");
+        
+        Formatos::printCentrado("1. Registrar Doctor       ", BLANCO);
+        Formatos::printCentrado("2. Listar Doctores        ", BLANCO);
+        Formatos::printCentrado("3. Buscar por ID          ", BLANCO);
+        Formatos::printCentrado("4. Asignar Paciente       ", BLANCO);
+        Formatos::printCentrado("5. Ver Pacientes Asignados", BLANCO); 
+        Formatos::printCentrado("6. Modificar Doctor       ", CYAN);
+        Formatos::printCentrado("7. Volver                 ", AMARILLO);
+        
+        cout << endl;
+        Formatos::imprimirLineaSeparadora();
+        
+        op = Validaciones::leerEntero("\n   >>> Opcion: ", 1, 7);
+        
+        switch(op) {
+            case 1: registrarDoctor(h); break;
+            case 2: listarDoctores(); break;
+            case 3: buscarDoctorPorID(); break;
+            case 4: asignarPacienteDoctor(); break;
+            case 5: verPacientesDeDoctor(); break;
+            case 6: modificarDoctor(); break;
+            case 7: break;
+            default: Formatos::printError("Opcion invalida."); break;
+        }
+    } while(op != 7);
+}

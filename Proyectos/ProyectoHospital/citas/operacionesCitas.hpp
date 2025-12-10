@@ -7,5 +7,7 @@ void agendarCita(Hospital& h);
 void listarCitas();
 void modificarCita();
 
+// Menú de citas (interfaz)
+void menuCitas(Hospital& h);
 
 #endif

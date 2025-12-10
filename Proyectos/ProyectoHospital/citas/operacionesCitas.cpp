@@ -31,7 +31,6 @@ void agendarCita(Hospital& h) {
     c.setDatos(head.proximoID, idPac, idDoc, fecha, hora);
     
     if(GestorArchivos::guardarRegistro(&c, sizeof(Cita), Rutas::CITAS)) {
-        // Actualizar relaciones
         p.agregarCita(c.getId());
         d.agregarCita(c.getId());
         GestorArchivos::actualizarRegistro(idPac, &p, sizeof(Paciente), Rutas::PACIENTES);
@@ -107,4 +106,29 @@ void modificarCita() {
         cout << "Cita no encontrada.\n";
     }
     Formatos::pausar();
+}
+
+void menuCitas(Hospital& h) {
+    int op;
+    do {
+        Formatos::imprimirEncabezado("GESTION DE CITAS");
+
+        Formatos::printCentrado("1. Agendar Cita            ", BLANCO);
+        Formatos::printCentrado("2. Listar Citas            ", BLANCO);
+        Formatos::printCentrado("3. Modificar/Cancelar Cita ", CYAN);
+        Formatos::printCentrado("4. Volver                  ", AMARILLO);
+
+        cout << endl;
+        Formatos::imprimirLineaSeparadora();
+
+        op = Validaciones::leerEntero("\n   >>> Opcion: ", 1, 4);
+
+        switch(op) {
+            case 1: agendarCita(h); break;
+            case 2: listarCitas(); break;
+            case 3: modificarCita(); break;
+            case 4: break;
+            default: Formatos::printError("Opcion invalida."); break;
+        }
+    } while(op != 4);
 }

@@ -10,4 +10,7 @@ void asignarPacienteDoctor();
 void verPacientesDeDoctor();
 void modificarDoctor();
 
+// Menú de doctores (interfaz)
+void menuDoctores(Hospital& h);
+
 #endif

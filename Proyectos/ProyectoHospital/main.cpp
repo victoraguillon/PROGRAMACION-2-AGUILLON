@@ -17,13 +17,18 @@
 #include "doctores/operacionesDoctores.hpp"
 #include "citas/operacionesCitas.hpp"
 #include "historial/operacionesHistorial.hpp"
+#include "pacientes/Paciente.hpp"
+#include "doctores/Doctor.hpp"
+#include "citas/Cita.hpp"
+#include "historial/HistorialMedico.hpp"
+#include <filesystem>
+#include <vector>
+#include "persistencia/Mantenimiento.hpp"
 
 using namespace std;
 
-// Declaracion de menus locales
-void menuPacientes(Hospital& h);
-void menuDoctores(Hospital& h);
-void menuCitas(Hospital& h);
+// Declaracion de menus locales (implementaciones en sus módulos)
+void menuMantenimiento(Hospital& h);
 
 int main() {
     // 1. Inicializar sistema
@@ -34,11 +39,11 @@ int main() {
 
     // 2. Cargar datos del Hospital
     Hospital hospital;
-    ifstream fileH(Rutas::HOSPITAL, ios::binary);
+    ifstream archivoHospital(Rutas::HOSPITAL, ios::binary);
     
-    if (fileH) {
-        fileH.read((char*)&hospital, sizeof(Hospital));
-        fileH.close();
+    if (archivoHospital) {
+        archivoHospital.read((char*)&hospital, sizeof(Hospital));
+        archivoHospital.close();
         
         // --- Bloque de Edición Inicial con Estética ---
         Formatos::limpiarPantalla();
@@ -123,7 +128,7 @@ int main() {
 
     int opcion;
     do {
-        // --- MENÚ PRINCIPAL CON ESTÉTICA ---
+        // --- MENÚ PRINCIPAL BONITO
         Formatos::imprimirEncabezado(hospital.getNombre());
         
         Formatos::printCentrado("1. Gestion de Pacientes", BLANCO);
@@ -131,13 +136,14 @@ int main() {
         Formatos::printCentrado("3. Gestion de Citas    ", BLANCO);
         Formatos::printCentrado("4. Realizar Consulta   ", BLANCO);
         Formatos::printCentrado("5. Ver Estadisticas    ", BLANCO);
-        Formatos::printCentrado("6. Salir               ", ROJO);
+            Formatos::printCentrado("6. Mantenimiento Archivos", CYAN);
+            Formatos::printCentrado("7. Salir               ", ROJO);
         
         cout << endl;
         Formatos::imprimirLineaSeparadora();
         
         // Input alineado
-        opcion = Validaciones::leerEntero("\n   >>> Seleccione una opcion: ", 1, 6);
+        opcion = Validaciones::leerEntero("\n   >>> Seleccione una opcion: ", 1, 7);
 
         switch (opcion) {
             case 1: menuPacientes(hospital); break;
@@ -148,7 +154,8 @@ int main() {
                 hospital.mostrarEstadisticas();
                 Formatos::pausar();
                 break;
-            case 6: {
+            case 6: menuMantenimiento(hospital); break;
+            case 7: {
                 ofstream out(Rutas::HOSPITAL, ios::binary);
                 out.write((char*)&hospital, sizeof(Hospital));
                 Formatos::printCentrado("Guardando y saliendo...", AMARILLO);
@@ -157,96 +164,8 @@ int main() {
                 Formatos::printError("Opcion invalida.");
                 break;
         }
-    } while (opcion != 6);
+    } while (opcion != 7);
 
     return 0;
 }
-
-void menuPacientes(Hospital& h) {
-    int op;
-    do {
-        Formatos::imprimirEncabezado("GESTION DE PACIENTES");
-        
-        Formatos::printCentrado("1. Registrar Paciente   ", BLANCO);
-        Formatos::printCentrado("2. Listar Todos         ", BLANCO);
-        Formatos::printCentrado("3. Buscar por ID        ", BLANCO);
-        Formatos::printCentrado("4. Buscar por Cedula    ", BLANCO);
-        Formatos::printCentrado("5. Ver Historial Medico ", BLANCO);
-        Formatos::printCentrado("6. Eliminar Paciente    ", BLANCO);
-        Formatos::printCentrado("7. Modificar Datos      ", CYAN); // Opción nueva destacada
-        Formatos::printCentrado("8. Volver               ", AMARILLO);
-        
-        cout << endl;
-        Formatos::imprimirLineaSeparadora();
-
-        op = Validaciones::leerEntero("\n   >>> Opcion: ", 1, 8);
-        
-        switch (op) {
-            case 1: registrarPaciente(h); break;
-            case 2: listarPacientes(); break;
-            case 3: buscarPacientePorID(); break;
-            case 4: buscarPacientePorCedula(); break;
-            case 5: verHistorialPaciente(); break;
-            case 6: eliminarPaciente(h); break;
-            case 7: modificarPaciente(); break;
-            case 8: break; // volver
-            default: Formatos::printError("Opcion invalida."); break;
-        }
-    } while(op != 8);
-}
-
-void menuDoctores(Hospital& h) {
-    int op;
-    do {
-        Formatos::imprimirEncabezado("GESTION DE DOCTORES");
-        
-        Formatos::printCentrado("1. Registrar Doctor       ", BLANCO);
-        Formatos::printCentrado("2. Listar Doctores        ", BLANCO);
-        Formatos::printCentrado("3. Buscar por ID          ", BLANCO);
-        Formatos::printCentrado("4. Asignar Paciente       ", BLANCO);
-        Formatos::printCentrado("5. Ver Pacientes Asignados", BLANCO); 
-        Formatos::printCentrado("6. Modificar Doctor       ", CYAN);
-        Formatos::printCentrado("7. Volver                 ", AMARILLO);
-        
-        cout << endl;
-        Formatos::imprimirLineaSeparadora();
-        
-        op = Validaciones::leerEntero("\n   >>> Opcion: ", 1, 7);
-        
-        switch(op) {
-            case 1: registrarDoctor(h); break;
-            case 2: listarDoctores(); break;
-            case 3: buscarDoctorPorID(); break;
-            case 4: asignarPacienteDoctor(); break;
-            case 5: verPacientesDeDoctor(); break;
-            case 6: modificarDoctor(); break;
-            case 7: break;
-            default: Formatos::printError("Opcion invalida."); break;
-        }
-    } while(op != 7);
-}
-
-void menuCitas(Hospital& h) {
-    int op;
-    do {
-        Formatos::imprimirEncabezado("GESTION DE CITAS");
-        
-        Formatos::printCentrado("1. Agendar Cita            ", BLANCO);
-        Formatos::printCentrado("2. Listar Citas            ", BLANCO);
-        Formatos::printCentrado("3. Modificar/Cancelar Cita ", CYAN);
-        Formatos::printCentrado("4. Volver                  ", AMARILLO);
-        
-        cout << endl;
-        Formatos::imprimirLineaSeparadora();
-        
-        op = Validaciones::leerEntero("\n   >>> Opcion: ", 1, 4);
-        
-        switch(op) {
-            case 1: agendarCita(h); break;
-            case 2: listarCitas(); break;
-            case 3: modificarCita(); break;
-            case 4: break;
-            default: Formatos::printError("Opcion invalida."); break;
-        }
-    } while(op != 4);
-}
+void menuMantenimiento(Hospital& h) { Mantenimiento::menu(h); }

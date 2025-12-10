@@ -3,6 +3,7 @@
 #include "../persistencia/GestorArchivos.hpp"
 #include "../utilidades/Validaciones.hpp"
 #include "../utilidades/Formatos.hpp"
+#include "../historial/operacionesHistorial.hpp"
 #include <iostream>
 #include <cstring>
 using namespace std;
@@ -157,5 +158,38 @@ void modificarPaciente() {
         cout << "Paciente no encontrado o eliminado.\n";
     }
     Formatos::pausar();
+}
+
+void menuPacientes(Hospital& h) {
+    int op;
+    do {
+        Formatos::imprimirEncabezado("GESTION DE PACIENTES");
+        
+        Formatos::printCentrado("1. Registrar Paciente   ", BLANCO);
+        Formatos::printCentrado("2. Listar Todos         ", BLANCO);
+        Formatos::printCentrado("3. Buscar por ID        ", BLANCO);
+        Formatos::printCentrado("4. Buscar por Cedula    ", BLANCO);
+        Formatos::printCentrado("5. Ver Historial Medico ", BLANCO);
+        Formatos::printCentrado("6. Eliminar Paciente    ", BLANCO);
+        Formatos::printCentrado("7. Modificar Datos      ", CYAN);
+        Formatos::printCentrado("8. Volver               ", AMARILLO);
+        
+        cout << endl;
+        Formatos::imprimirLineaSeparadora();
+
+        op = Validaciones::leerEntero("\n   >>> Opcion: ", 1, 8);
+        
+        switch (op) {
+            case 1: registrarPaciente(h); break;
+            case 2: listarPacientes(); break;
+            case 3: buscarPacientePorID(); break;
+            case 4: buscarPacientePorCedula(); break;
+            case 5: verHistorialPaciente(); break;
+            case 6: eliminarPaciente(h); break;
+            case 7: modificarPaciente(); break;
+            case 8: break; // volver
+            default: Formatos::printError("Opcion invalida."); break;
+        }
+    } while(op != 8);
 }
 

@@ -3,7 +3,7 @@
 
 #include <string>
 
-// Definición de colores ANSI
+// Definición de colores 
 #define RESET   "\033[0m"
 #define ROJO    "\033[31m"
 #define VERDE   "\033[32m"
@@ -20,8 +20,6 @@ public:
     static void pausar();
     static void limpiarBuffer();
     static void toLowerCopy(const char* src, char* dst, int dstSize);
-    
-  
     static void imprimirLineaSeparadora();
     static void imprimirEncabezado(const char* titulo);
     static void printCentrado(const char* texto, const char* color = BLANCO);
